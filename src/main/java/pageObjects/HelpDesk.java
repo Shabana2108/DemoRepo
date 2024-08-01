@@ -846,5 +846,16 @@ public class HelpDesk {
 	    driver.findElement(SuccessPopup_OK);
 	    
 	   }
+	   public void gittestingMethod() throws InterruptedException {
+		   WebDriverWait wait= new WebDriverWait(driver,Duration.ofSeconds(10));
+		   WebElement Actualmsg = wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessmsgID));
+		   String ExpectedRepliedMsg ="Response saved successfully.";
+		   String ActualRepliedMsg =Actualmsg.getText();
+		   Assert.assertEquals(ActualRepliedMsg, ExpectedRepliedMsg);
+		   Thread.sleep(1000);
+		   System.out.println("Testcase passed");
+		   
+	   }
+	   
 	   
 }

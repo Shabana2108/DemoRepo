@@ -44,7 +44,7 @@ public class SubmitUSR {
 		}
 	
 	//TestCase ID = 91910
-	//@Test
+	@Test
 	public void helpDeskOfficer_returningUSRToHD() throws InterruptedException, IOException, SQLException {
 		helpDesk = new HelpDesk();
 		String USRNO=helpDesk.submitUSR();
