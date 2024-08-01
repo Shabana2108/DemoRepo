@@ -31,8 +31,9 @@ public class HelpDesk {
     WebDriver driver = new ChromeDriver();
     Select sel;
     JavascriptExecutor js;
-    WebDriverWait wb;
+    WebDriverWait wait;
     Robot robot;
+    	
    
     
  ////////////// LOCATORS OF HELPDESK ///////////////
