@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Suite]">
+  <test thread-count="5" name="TestName(failed)">
+    <classes>
+      <class name="helpDesk.SubmitUSR">
+        <methods>
+          <include name="tagUSR_Resolved"/>
+          <include name="createUSR"/>
+        </methods>
+      </class> <!-- helpDesk.SubmitUSR -->
+    </classes>
+  </test> <!-- TestName(failed) -->
+</suite> <!-- Failed suite [Suite] -->

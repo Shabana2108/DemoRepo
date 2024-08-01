@@ -1,0 +1,17 @@
+<suite parallel="true" name ="Suite" > 
+ <test name= "TestName">
+ <parameter name="name" value="Shabana"/>
+ <parameter name="password" value="1234"/>
+  <packages>
+    <package name= "Examples" />
+    </packages>
+ </test>
+ 
+ <test name= "TestName2">
+ <parameter name="name" value="Shabana1"/>
+ <parameter name="password" value="12345"/>
+<classes>
+    <class name= "Examples.ParametersSample" />
+ </classes>
+ </test>
+</suite>

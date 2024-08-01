@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite parallel="false" name="Suite">
+  <test name="Test">
+  <parameter name="Username" value="Shabana"/>
+  <parameter name="Password" value="45"/>
+    <classes>
+      <class name="Examples.DataProviderSample"/>
+      <class name="Examples.ParametersSample"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->
+
+
+<classes>
+    <class name= "Examples.ParametersSample" />
+    <class name= "endToEndFlows.DataProviderSample"/>
+  </classes>
