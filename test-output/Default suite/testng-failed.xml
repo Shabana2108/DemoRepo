@@ -3,11 +3,11 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="helpDesk.SubmitUSR">
+      <class name="helpDesk.HelpDeskFlows">
         <methods>
-          <include name="tagUSR_Resolved"/>
+          <include name="createUSR"/>
         </methods>
-      </class> <!-- helpDesk.SubmitUSR -->
+      </class> <!-- helpDesk.HelpDeskFlows -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->
