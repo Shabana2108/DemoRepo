@@ -1,4 +1,4 @@
-package Examples;
+package test;
 import org.testng.annotations.*;
 import org.openqa.selenium.*;
 

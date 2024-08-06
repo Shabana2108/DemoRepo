@@ -56,6 +56,7 @@ public class HelpDesk {
     By ConfirmationYES = By.id("btnRightCallBack");
     By ConfirmationNO = By.id("btnLeftCallBack");
     By SuccessPopup_OK = By.id("AlertButton");
+    
   
  ////// Tag USR as Resolved ///////// TestCase ID = 91904
     By Search_ViewUSR = By.linkText("Search/View USRs");
@@ -88,7 +89,7 @@ public class HelpDesk {
  ////// SGP handles USR ///////////
     By Reply_link = By.id("USRReplyClick");
     By ReplyMessage_Textbox = By.id("USRReplyMessage");
-    By Reply_AttachFile =By.xpath("//input[@id='usrReplyAttchfiles']");
+    By Reply_AttachFile =By.xpath("//textarea[@id='USRReplyMessage']/following::input[2]");
     By SubmitRepy_Button =By.xpath("//button[@data-bind='click:submitReply']");
     
   ///////Submit USR OnBehalf of User /////////////
@@ -111,7 +112,9 @@ public class HelpDesk {
     By EnterFeedback_TextBox= By.id("OSFeedbackMessage");
     By OSFeedback_Save_Button = By.xpath("//button[@data-bind='click: onFeedbackSaveClick']");
     
-  
+///HDO-replies to OS feedback ////////
+    By HDOReplyFeedback_Save = By.xpath("//button[@data-bind='click: onCommentSaveClick']");
+    
     
     
   ///////////////////////////////////////////////////////////////////////////  
@@ -129,27 +132,44 @@ public class HelpDesk {
 //		driver.findElement(By.name("username")).sendKeys("SShabana");
 //		driver.findElement(By.name("password")).sendKeys("S!Sh%1abana*");
 //		driver.findElement(By.xpath("//button[text()='LOG IN']")).click();
-			}
+	    }
 	
 	
 	public void scrollDown() {
 		js= (JavascriptExecutor)driver;
 	    js.executeScript("window.scrollBy(0,500)");
-			}
+	     }
 	
 	
-	public void SubmitUSR_ClickingOnHelpDesk()  {
+	public void changeRoleToHelpDesk() throws SQLException {
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		wait.until(ExpectedConditions.visibilityOfElementLocated(HelpDesk));
-		driver.findElement(HelpDesk).click();
+	    driver.navigate().refresh();
+	    String currentRole = wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
+	    System.out.println("My current role is " + currentRole); 
+		while (!currentRole.equalsIgnoreCase("Help Desk Officer")) {
+	        connecting_DB_updatingroleID(2, 1157);
+	        connecting_DB_updateGroupID(1,1157);
+	        driver.navigate().refresh();
+	        currentRole = wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
+	        System.out.println("My current role is " + currentRole); 
+	            }
+	}
+	
+	public void SubmitUSR_ClickingOnHelpDesk()   {
+		wait = new WebDriverWait(driver, Duration.ofSeconds(100));
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(HelpDesk));
+		((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+		//Thread.sleep(2000);
+		//driver.findElement(HelpDesk).click();
 		System.out.println("Clicked on Help Desk Menu");
 		    }
 	
 	
 	public void SubmitUSR_ClickingOnSubmitUSR() {
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		wait.until(ExpectedConditions.visibilityOfElementLocated(SubmitUSR));
-		driver.findElement(SubmitUSR).click();
+		wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+		WebElement element= wait.until(ExpectedConditions.visibilityOfElementLocated(SubmitUSR));
+		((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+		//driver.findElement(SubmitUSR).click();
         	}
 	
 	
@@ -212,7 +232,8 @@ public class HelpDesk {
         	}
 	
 	
-	public void SubmitUSR_ClickCancel(){
+	public void SubmitUSR_ClickCancel() throws InterruptedException{
+		Thread.sleep(1000);
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 		scrollDown();
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -233,7 +254,8 @@ public class HelpDesk {
 /////////////////////////////////////////////////////////////////////
 	
 	public void SearchUSR() {
-		wait.until(ExpectedConditions.visibilityOfElementLocated(Search_ViewUSR)).click();
+		WebElement element=driver.findElement(Search_ViewUSR);
+		((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
 		     }
 	   
 	
@@ -248,7 +270,7 @@ public class HelpDesk {
 		stmt.setInt(1, role);
 		stmt.setInt(2, userid);
 		int rowsUpdated=stmt.executeUpdate();
-		System.out.println("Number of rows updated" +rowsUpdated);
+		System.out.println("Number of rows updated " +rowsUpdated);
 		System.out.println("Updated Role ID successfully" );
 		   }
 	
@@ -264,7 +286,7 @@ public class HelpDesk {
 	   stmt.setInt(1, groupID);
 	   stmt.setInt(2, userid);
 	   int rowsUpdated=stmt.executeUpdate();
-	   System.out.println("Number of rows updated"+rowsUpdated);
+	   System.out.println("Number of rows updated "+rowsUpdated);
 	   System.out.println("Updated Group ID successfully" );
 		  }
 	   
@@ -295,7 +317,8 @@ public class HelpDesk {
 	   
 	
 	   //Referring to Support group makes USR status as pending
-	public void refferingUSRToSupportGroup(String USRNO) throws SQLException {
+	public void refferingUSRToSupportGroup(String USRNO) throws SQLException, InterruptedException {
+	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 	   driver.navigate().refresh();
 	   wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	   String currentrole= wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
@@ -313,11 +336,15 @@ public class HelpDesk {
 	   SearchUSR();
 	   System.out.println("USR No is "+USRNO);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRID_feild)).sendKeys(USRNO);
-	   wait.until(ExpectedConditions.visibilityOfElementLocated(SearchwithUSRID)).click();
+	   Thread.sleep(1000);
+	   driver.findElement(SearchwithUSRID).click();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRIDlink)).click();
 	   scrollDown();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(ReferToSpprtGrp_Button)).click();
  	   scrollDown();
+ 	   Thread.sleep(1000);
  	   WebElement ReferSelect= wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[@id='ReferToSpprtGrpBtnId']/following::select[1]")));
 	   sel= new Select(ReferSelect);
 	   sel.selectByVisibleText("CRS HELP DESK");
@@ -327,7 +354,7 @@ public class HelpDesk {
 			 }
 	
 		   
-	public void SGCResolvesUSR(String USRNO) throws SQLException {
+	public void SGCResolvesUSR(String USRNO) throws SQLException, InterruptedException {
 	   driver.navigate().refresh();
 	   wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	   String currentrole= wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
@@ -336,7 +363,7 @@ public class HelpDesk {
 	   
 	   while (!currentrole.equalsIgnoreCase("Support Group Coordinator")) {
 	        connecting_DB_updatingroleID(3, 1157);
-	        connecting_DB_updateGroupID(2,1157);
+	        connecting_DB_updateGroupID(1,1157);
 	        driver.navigate().refresh();
 	        currentrole = wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
 	        System.out.println("My current role is " + currentrole); 
@@ -345,12 +372,16 @@ public class HelpDesk {
 	   SubmitUSR_ClickingOnHelpDesk();
 	   SearchUSR();
 	   driver.findElement(USRID_feild).sendKeys(USRNO);
-	   wait.until(ExpectedConditions.visibilityOfElementLocated(SearchwithUSRID)).click();
+	   Thread.sleep(1000);
+	   driver.findElement(SearchwithUSRID).click();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRIDlink)).click();
 	   scrollDown();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(MarkResolved_Button)).click();
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRRemarks_Textbox)).sendKeys("Testing SGC Resolving the USR through Automation By Shabana");
 	   scrollDown();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRResolve_Save_Button)).click();
 	   String ActualResolvecnfmnMsg= wait.until(ExpectedConditions.visibilityOfElementLocated(ConfirmationmsgID)).getText();
 	   String ExpectedResolvecnfmnMsg = "Are you sure you want to resolve USR?";
@@ -369,7 +400,7 @@ public class HelpDesk {
 //////////HelpDesk Officer returning pending USR to HelpDesk//////////
 /////////////////////////////////////////////////////////////////////    
 			   
-	public void HDORetuningUSRToHD(String USRNO) throws SQLException {
+	public void HDORetuningUSRToHD(String USRNO) throws SQLException, InterruptedException {
 	   driver.navigate().refresh();
 	   wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	   String currentrole= wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
@@ -387,16 +418,18 @@ public class HelpDesk {
   	   SubmitUSR_ClickingOnHelpDesk();
 	   SearchUSR();
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRID_feild)).sendKeys(USRNO);
-	   wait.until(ExpectedConditions.visibilityOfElementLocated(SearchwithUSRID)).click();
+	   Thread.sleep(1000);
+	   driver.findElement(SearchwithUSRID).click();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(USRIDlink)).click();	   
 	   scrollDown();
+	   Thread.sleep(1000);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(ReturntoHelpDesk_Button)).click();
 	   String ActualRetruncnfmnMsg=wait.until(ExpectedConditions.visibilityOfElementLocated(ConfirmationmsgID)).getText();
 	   String ExpectedReturncnfmnMsg = "Are you sure you want to return the USR to Help Desk?";
 	   Assert.assertEquals(ActualRetruncnfmnMsg, ExpectedReturncnfmnMsg);
 	   System.out.println(ActualRetruncnfmnMsg);
 	   wait.until(ExpectedConditions.visibilityOfElementLocated(ConfirmationYES)).click();
-	   
 	   String ExpectedReturnedMsg ="USR Returned to Help Desk";
 	   String ActualReturnedMsg=wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessmsgID)).getText();
 	   Assert.assertEquals(ActualReturnedMsg, ExpectedReturnedMsg);
@@ -427,8 +460,10 @@ public class HelpDesk {
 	            }
 	   
        SubmitUSR_ClickingOnHelpDesk();
+       Thread.sleep(1000);
        driver.findElement(KnowledgeBase).click();
-       wait.until(ExpectedConditions.visibilityOfElementLocated(Upload_Button)).click();
+       Thread.sleep(2000);
+       driver.findElement(Upload_Button).click();
 	   robot = new Robot();
 	   StringSelection ss = new StringSelection("C:\\Users\\SShabana\\eclipse-workspace\\com.serbilis\\src\\test\\resources\\HD Knowledge Base.pdf");
 	   Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
@@ -452,7 +487,7 @@ public class HelpDesk {
 ////////////////////SGP_Handle USR ////////////////////	 Testcase ID = 178558
 ///////////////////////////////////////////////////////////////////// 
    
-	public void SGCAssigningUSRToSGP(String USRNO) throws SQLException {
+	public void SGCAssigningUSRToSGP(String USRNO) throws SQLException, InterruptedException {
 		driver.navigate().refresh();
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -471,11 +506,15 @@ public class HelpDesk {
 		SubmitUSR_ClickingOnHelpDesk();
 		SearchUSR();
 		wait.until(ExpectedConditions.visibilityOfElementLocated(USRID_feild)).sendKeys(USRNO);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(SearchwithUSRID)).click();
-		wait.until(ExpectedConditions.visibilityOfElementLocated(USRIDlink)).click();
+		Thread.sleep(1000);
+		driver.findElement(SearchwithUSRID).click();
+		Thread.sleep(1000);
+		driver.findElement(USRIDlink).click();
 		scrollDown();
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(AssignSGP_Button)).click();
 		scrollDown();
+		Thread.sleep(1000);
 		WebElement selectSGP=wait.until(ExpectedConditions.visibilityOfElementLocated(AssignSGPDropdown));
 		sel= new Select(selectSGP);
 		sel.selectByValue("1157");
@@ -489,7 +528,7 @@ public class HelpDesk {
 		   }
 	   
 	
-	public void SGPHandlesUSR(String USRNO) throws IOException, SQLException, AWTException {
+	public void SGPHandlesUSR(String USRNO) throws IOException, SQLException, AWTException, InterruptedException {
 		driver.navigate().refresh();
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -509,11 +548,15 @@ public class HelpDesk {
 		SubmitUSR_ClickingOnHelpDesk();
 		SearchUSR();
 		driver.findElement(USRID_feild).sendKeys(USRNO);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(SearchwithUSRID)).click();
-		wait.until(ExpectedConditions.visibilityOfElementLocated(USRIDlink)).click();
+		Thread.sleep(1000);
+		driver.findElement(SearchwithUSRID).click();
+		Thread.sleep(1000);
+		driver.findElement(USRIDlink).click();
 		scrollDown();
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(Reply_link)).click();
 		scrollDown();
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(ReplyMessage_Textbox)).sendKeys("Replying through automation script by Shabana as SGP");
 		wait.until(ExpectedConditions.visibilityOfElementLocated(SubmitRepy_Button)).click();
 		String ActualRepliedMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessmsgID)).getText();
@@ -622,31 +665,38 @@ public class HelpDesk {
 		   }
 	
 	
-	public void searchWithUSR(String USRNO) {
+	public void searchWithUSR(String USRNO) throws InterruptedException {
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		wait.until(ExpectedConditions.visibilityOfElementLocated(USRID_feild)).sendKeys(USRNO);
-		wait.until(ExpectedConditions.visibilityOfElementLocated(SearchwithUSRID)).click();
+		Thread.sleep(1000);
+		driver.findElement(SearchwithUSRID).click();
 			}
 	
 	   
-	public void clickOnSearchedUSR() {
-		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		wait.until(ExpectedConditions.visibilityOfElementLocated(USRIDlink)).click();
+	public void clickOnSearchedUSR() throws InterruptedException {
+		
+		Thread.sleep(1000);
+		driver.findElement(USRIDlink).click();
 		scrollDown();
 		   	}
 	
 		
 	public void replyUSRWithAttachment() throws AWTException, InterruptedException {
+		wait= new WebDriverWait(driver,Duration.ofSeconds(10));
+		Thread.sleep(1000);
 		driver.findElement(Reply_link).click();
 		scrollDown();
-		wait= new WebDriverWait(driver,Duration.ofSeconds(10));
+		Thread.sleep(1000);
 		WebElement ReplyMessageTextBox=wait.until(ExpectedConditions.visibilityOfElementLocated(ReplyMessage_Textbox));
 		ReplyMessageTextBox.sendKeys("Testing reply USR with attachment in automation by shabana");
 		ReplyMessageTextBox.sendKeys(Keys.TAB);
 //      wb = new WebDriverWait(driver,Duration.ofSeconds(10));
 //	    WebElement AttachmentButton= wb.until(ExpectedConditions.elementToBeClickable(Reply_AttachFile));
 		scrollDown();
-		wait.until(ExpectedConditions.visibilityOfElementLocated(Reply_AttachFile)).click();
+		Thread.sleep(2000);
+		WebElement element=driver.findElement(Reply_AttachFile);
+		((JavascriptExecutor)driver).executeScript("arguments[0].click();", element);	
+		Thread.sleep(1000);
 		robot = new Robot();
 		StringSelection ss = new StringSelection("C:\\Users\\SShabana\\eclipse-workspace\\com.serbilis\\src\\test\\resources\\depositslip200.tiff");
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
@@ -658,6 +708,7 @@ public class HelpDesk {
 		Thread.sleep(2000);
 		robot.keyPress(KeyEvent.VK_ENTER);
 		robot.keyRelease(KeyEvent.VK_ENTER);
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(SubmitRepy_Button)).click();
 		   }
 	
@@ -675,12 +726,14 @@ public class HelpDesk {
 //////Verify the button(Reopen)when a HDO selects a USR with status 'Closed' ////////////////////	 Testcase ID = 253783
 ///////////////////////////////////////////////////////////////////// 
 	   
-	public void markResolvedByHDO() {
+	public void markResolvedByHDO() throws InterruptedException {
 		scrollDown();
+		Thread.sleep(1000);
 		wait= new WebDriverWait(driver,Duration.ofSeconds(10));
 		wait.until(ExpectedConditions.visibilityOfElementLocated(MarkResolved_Button)).click();
 		wait.until(ExpectedConditions.visibilityOfElementLocated(USRRemarks_Textbox)).sendKeys("Testing HDO Resolving the USR through Automation By Shabana");
 		scrollDown();
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(USRResolve_Save_Button)).click();
 		String ExpectedResolvecnfmnMsg = "Are you sure you want to resolve USR?";
 		String ActualResolvecnfmnMsg=wait.until(ExpectedConditions.visibilityOfElementLocated(ConfirmationmsgID)).getText();
@@ -694,8 +747,9 @@ public class HelpDesk {
 	        }
 	   
 	   
-	public void closeUSRByHDO()  {
+	public void closeUSRByHDO() throws InterruptedException  {
 		scrollDown();
+		Thread.sleep(1000);
 		wait= new WebDriverWait(driver,Duration.ofSeconds(10));
 		wait.until(ExpectedConditions.visibilityOfElementLocated(CloseButton)).click();
 		String ActualResolvecnfmnMsg =wait.until(ExpectedConditions.visibilityOfElementLocated(ConfirmationmsgID)).getText();
@@ -711,12 +765,15 @@ public class HelpDesk {
 			}
 	
 	
-	public void reopenUSRByHDO()  {
+	public void reopenUSRByHDO() throws InterruptedException  {
 		wait= new WebDriverWait(driver,Duration.ofSeconds(20));
-		wait.until(ExpectedConditions.visibilityOfElementLocated(Reopen_Button)).click();
+		Thread.sleep(1000);
+		driver.findElement(Reopen_Button).click();
 		scrollDown();
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(USRRemarks_Textbox)).sendKeys("Testing HDO Reopening the USR through Automation By Shabana");
 		scrollDown();
+		Thread.sleep(1000);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(Reopen_Save_Button)).click();
 		String ExpectedReopencnfmnMsg = "Are you sure you want to reopen the USR?";
 		String ActualReopencnfmnMsg=wait.until(ExpectedConditions.visibilityOfElementLocated(ConfirmationmsgID)).getText();
@@ -726,7 +783,7 @@ public class HelpDesk {
 		String ExpectedReopenedMsg ="USR reopened.";
 		String ActualReopenedMsg= wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessmsgID)).getText();
 		Assert.assertEquals(ActualReopenedMsg, ExpectedReopenedMsg);
-		System.out.println(ActualReopencnfmnMsg);
+		System.out.println(ActualReopenedMsg);
 		wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessPopup_OK)).click();
 	        }
 	   
@@ -735,7 +792,7 @@ public class HelpDesk {
 //Verify if OS can enter feedback response multiple times in the ongoing week///////	 Testcase ID = 187452
 ///////////////////////////////////////////////////////////////////// 	   
 	  
-	public void OS_SubmitFeedback() throws SQLException, IOException {
+	public String OS_SubmitFeedback() throws SQLException, IOException, InterruptedException {
 		launchHD();
 	    wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	    driver.navigate().refresh();
@@ -751,18 +808,66 @@ public class HelpDesk {
 	           }
 	    
 	    SubmitUSR_ClickingOnHelpDesk();
+	    Thread.sleep(1000);
 	    wait.until(ExpectedConditions.visibilityOfElementLocated(ViewORSubmit_Feedback)).click();
 	    WebElement weekEndingSelect=wait.until(ExpectedConditions.visibilityOfElementLocated(WeekEndingSelect));
 	    sel= new Select(weekEndingSelect);
 	    sel.selectByIndex(1);
+	    Thread.sleep(1000);
 	    wait.until(ExpectedConditions.visibilityOfElementLocated(ViewORSUbmit_Button)).click();
-	    wait.until(ExpectedConditions.visibilityOfElementLocated(EnterFeedback_TextBox)).sendKeys("Entering feedback to the HDO from Outlet Supervisor through Automation By shabana");
+	    String Feedback="Entering feedback to the HDO from Outlet Supervisor through Automation By shabana";
+	    wait.until(ExpectedConditions.visibilityOfElementLocated(EnterFeedback_TextBox)).sendKeys(Feedback);
+	    Thread.sleep(1000);
 	    wait.until(ExpectedConditions.visibilityOfElementLocated(OSFeedback_Save_Button)).click();
 	    String ExpectedFeedbackSuccessMsg = "Feedback saved successfully";
 	    String ActualFeedbackSuccessMsg= wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessmsgID)).getText();
 	    Assert.assertEquals(ActualFeedbackSuccessMsg,ExpectedFeedbackSuccessMsg);
 	    System.out.println(ActualFeedbackSuccessMsg);
 	    wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessPopup_OK)).click();
+	    return Feedback;
 	       }
+
 	  
+	public void updatingRoleTOHD() throws IOException, SQLException {
+		launchHD();
+	    wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	    driver.navigate().refresh();
+	    String currentRole = wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
+	    System.out.println("My current role is " + currentRole); 
+	    
+	    while (!currentRole.equalsIgnoreCase("Help Desk Officer")) {
+	        connecting_DB_updatingroleID(2, 1157);
+	        connecting_DB_updateGroupID(1,1157);
+	        driver.navigate().refresh();
+	        currentRole = wait.until(ExpectedConditions.visibilityOfElementLocated(UserRole)).getText();
+	        System.out.println("My current role is " + currentRole); 
+	           }
+	    }
+	public void HDOReplies_OSFeedback(String Feedback) throws InterruptedException {
+		Thread.sleep(1000);
+		wait.until(ExpectedConditions.elementToBeClickable(ViewORSubmit_Feedback)).click();
+	    WebElement weekEndingSelect=wait.until(ExpectedConditions.visibilityOfElementLocated(WeekEndingSelect));
+	    sel= new Select(weekEndingSelect);
+	    sel.selectByIndex(1);
+	    Thread.sleep(1000);
+	    wait.until(ExpectedConditions.visibilityOfElementLocated(ViewORSUbmit_Button)).click();
+	    String Feedback_Text =driver.findElement(By.xpath("//table[@id='OSFeedbackTable']/tbody/tr[1]/td[3]")).getText();
+	    String[] Actual_Feedback =Feedback_Text.split(":");
+	    Assert.assertEquals(Actual_Feedback[2].trim(),Feedback);
+	    System.out.println("OS feedback found and HDO replying on feedback");
+	    Thread.sleep(1000);
+	    driver.findElement(By.xpath("//table[@id='OSFeedbackTable']/tbody/tr[1]/td[4]/button")).click();
+	    scrollDown();
+	    driver.findElement(By.xpath("//div[@id='HDOAddCommentSection']/button")).click();
+	    Thread.sleep(1000);
+	    driver.findElement(By.xpath("//div[@id='HDOCommentSection']//textarea")).sendKeys("HDO replying on OS feedback through Automation by Shabana");
+	    Thread.sleep(1000);
+	    scrollDown();
+	    driver.findElement(HDOReplyFeedback_Save).click();
+	    String ActualSuccessMsg =wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessmsgID)).getText();
+		String ExpectedSuccessMsg = "Comment saved successfully";
+		System.out.println(ActualSuccessMsg);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(SuccessPopup_OK)).click();
+		Assert.assertTrue(ActualSuccessMsg.contains(ExpectedSuccessMsg));
+		   }
 }

@@ -33,7 +33,7 @@ public class CI_Birth_WalkInRequest_EndtoEnd {
 		FileInputStream fis = new FileInputStream("C:\\Users\\SShabana\\eclipse-workspace\\com.serbilis\\src\\test\\resources\\resources.config");
 		prop= new Properties();
 		prop.load(fis);
-		driver.get(prop.getProperty("Url"));
+		driver.get(prop.getProperty("QAB2Url"));
 		driver.manage().window().maximize();
 
 	}

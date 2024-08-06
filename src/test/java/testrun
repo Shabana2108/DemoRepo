@@ -1,9 +1,6 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
-<?xml version="1.0" encoding="UTF-8"?>
 <suite parallel="false" name ="Suite" > 
  <test name= "TestName">
-<!-- <parameter name="name" value="Shabana"/>
- <parameter name="password" value="1234"/>-->
   <packages>
     <package name= "helpDesk" />
     </packages>

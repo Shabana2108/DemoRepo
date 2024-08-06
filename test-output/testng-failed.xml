@@ -3,11 +3,11 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="helpDesk.HelpDeskFlows">
+      <class name="BREQS.BREQSFlows">
         <methods>
-          <include name="createUSR"/>
+          <include name="EncodeBREQS"/>
         </methods>
-      </class> <!-- helpDesk.HelpDeskFlows -->
+      </class> <!-- BREQS.BREQSFlows -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->
